@@ -1,0 +1,1 @@
+"""Example items domain."""

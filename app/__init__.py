@@ -1,0 +1,1 @@
+"""Async FastAPI application package."""
