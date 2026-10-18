@@ -10,6 +10,7 @@ from app.core.database import engine
 from app.core.logging import setup_logging
 from app.core.middleware import RequestIdMiddleware
 from app.core.telemetry import setup_telemetry
+from app.health.router import HealthResponse, health
 from app.items.exceptions import ItemNotFoundError
 
 settings = get_settings()
@@ -32,4 +33,5 @@ async def item_not_found_handler(_request: Request, _exc: ItemNotFoundError) -> 
     return JSONResponse(status_code=404, content={"detail": "Item not found"})
 
 
+app.add_api_route("/health", health, methods=["GET"], response_model=HealthResponse)
 app.include_router(api_router, prefix="/api/v1")

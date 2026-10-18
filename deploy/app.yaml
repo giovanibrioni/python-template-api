@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-template
+spec:
+  selector:
+    app: python-template
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-template
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-template
+  template:
+    metadata:
+      labels:
+        app: python-template
+    spec:
+      initContainers:
+        - name: migrate
+          image: app
+          command: ["uv", "run", "--no-dev", "alembic", "upgrade", "head"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: python-template-db
+                  key: DATABASE_URL
+      containers:
+        - name: python-template
+          image: app
+          command: ["uv", "run", "--no-dev", "fastapi", "run", "app/main.py", "--host", "0.0.0.0", "--port", "8000"]
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: python-template-db
+                  key: DATABASE_URL
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
