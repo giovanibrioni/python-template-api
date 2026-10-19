@@ -17,15 +17,17 @@ settings = get_settings()
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     setup_logging(settings)
-    setup_telemetry(app, engine, settings)
     yield
     await engine.dispose()
 
 
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
 app.add_middleware(RequestIdMiddleware)
+# Starlette freezes the middleware stack on the lifespan call, so instrumentation
+# has to be installed at import time or the process never exports spans.
+setup_telemetry(app, engine, settings)
 
 
 @app.exception_handler(ItemNotFoundError)
