@@ -38,6 +38,13 @@ jobs:
       - run: uv run ty check
       - name: OpenAPI
         run: |
+          if ! command -v make >/dev/null 2>&1; then
+            if [ "$(id -u)" -eq 0 ]; then
+              apt-get update && apt-get install -y make
+            else
+              sudo apt-get update && sudo apt-get install -y make
+            fi
+          fi
           make openapi
           git diff --exit-code -- openapi.yaml
       - run: uv run pytest
