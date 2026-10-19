@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help install up down dev migrate revision test-unit test lint review
+.PHONY: help install up down dev migrate revision openapi test-unit test lint review
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-12s %s\n", $$1, $$2}'
@@ -16,6 +16,9 @@ up: ## Start Postgres and ensure the app_test database exists
 
 down: ## Stop Postgres
 	docker compose down
+
+openapi: ## Write openapi.yaml from the FastAPI app
+	uv run python scripts/openapi.py
 
 dev: ## Run the API with reload on http://0.0.0.0:8000
 	uv run fastapi dev app/main.py --host 0.0.0.0 --port 8000
