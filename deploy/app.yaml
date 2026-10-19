@@ -41,7 +41,21 @@ spec:
           ports:
             - name: http
               containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: python-template-env
+                optional: true
           env:
+            - name: ENVIRONMENT
+              value: homelab
+            - name: LOG_JSON
+              value: "true"
+            - name: OTEL_SERVICE_NAME
+              value: python-template
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: deployment.environment=homelab
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://signoz-k8s-infra-otel-agent.o11y.svc.cluster.local:4318/v1/traces
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
