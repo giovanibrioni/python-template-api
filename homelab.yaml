@@ -1,0 +1,4 @@
+stack: python
+resources:
+  database: postgres
+  redis: false
